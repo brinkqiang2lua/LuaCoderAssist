@@ -16,6 +16,51 @@ const STD_PRELOADS = {
 
 const LOVE_PRELOAD = 'stdlibs/love.json';
 const LUAJIT_PRELOAD = 'stdlibs/luajit-2_0.json';
+const SYMBOL_PATH = '/.symbol';
+
+
+//需要统计的文件类型，可自己删减，均小写
+var codesFiles = ['.json']
+
+function loadSymbolFromDir(srcDir, coder) {
+    fs_1.readdir(srcDir, function (err, files) {
+        var count = 0
+        var checkEnd = function () {
+        }
+        if (err) {
+            checkEnd()
+            return
+        }
+        files.forEach(function (file) {
+            var extname = path_1.extname(file).toLowerCase()
+            var filename = path_1.basename(file)
+            var srcPath = path_1.join(srcDir, file)
+            fs_1.stat(srcPath, function (err, stats) {
+                if (stats.isDirectory()) {
+                    loadSymbolFromDir(srcPath, checkEnd)
+                } else {
+                    if (codesFiles.indexOf(extname) < 0) {
+                        checkEnd()
+                        return
+                    }
+                    coder.conn.console.info('loading symbol file ...' + filename);
+                    engine.loadExtentLib(srcPath, filename + ".lua", coder.tracer);
+                }
+            })
+        })
+    })
+}
+
+function mkdirsSync(dirname) {
+    if (fs_1.existsSync(dirname)) {
+        return true;
+    } else {
+        if (mkdirsSync(path_1.dirname(dirname))) {
+            fs_1.mkdirSync(dirname);
+            return true;
+        }
+    }
+}
 
 function loadAll(coder) {
     const preloads = coder.settings.preloads;
@@ -38,14 +83,18 @@ function loadAll(coder) {
         coder.tracer.info('loading JIT library ...');
         engine.loadExtentLib(coder.extensionPath + LUAJIT_PRELOAD, "jit.lua", coder.tracer);
     }
+    
+    coder.conn.console.info('mkdirsSync: ' + coder.workspaceRoot + SYMBOL_PATH)
+    mkdirsSync(coder.workspaceRoot + SYMBOL_PATH)
+    loadSymbolFromDir(coder.workspaceRoot + SYMBOL_PATH, coder)
 
     // TODO: add watcher for the modification of the rc file to avoid reload vscode.
-    findup(".luacompleterc", {cwd: coder.workspaceRoot}).then(rcFilePath => {
-        if (rcFilePath !== undefined && typeof(rcFilePath) === 'string') {
+    findup(".luacompleterc", { cwd: coder.workspaceRoot }).then(rcFilePath => {
+        if (rcFilePath !== undefined && typeof (rcFilePath) === 'string') {
             coder.tracer.info('loading luacomplete resource file: ' + rcFilePath);
             engine.loadExtentLib(rcFilePath, undefined, coder.tracer);
         }
-        
+
     });
 }
 
@@ -74,7 +123,7 @@ function load(filePath, coder) {
                     coder.tracer.info(`loading ${fileFound} ...`);
                     loadFile(fileFound, coder);
                 }
-            }, () => {});
+            }, () => { });
         }
         return;
     }
