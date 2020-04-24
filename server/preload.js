@@ -16,7 +16,7 @@ const STD_PRELOADS = {
 
 const LOVE_PRELOAD = 'stdlibs/love.json';
 const LUAJIT_PRELOAD = 'stdlibs/luajit-2_0.json';
-const SYMBOL_PATH = '/.symbol';
+const SYMBOL_PATH = `${path_1.sep}.symbol`;
 
 
 //需要统计的文件类型，可自己删减，均小写
@@ -43,7 +43,7 @@ function loadSymbolFromDir(srcDir, coder) {
                         checkEnd()
                         return
                     }
-                    coder.conn.console.info('loading symbol file ...' + filename);
+                    coder.conn.console.info(`loading symbol path=[${srcDir}] filename=[${filename}]...`);
                     engine.loadExtentLib(srcPath, filename + ".lua", coder.tracer);
                 }
             })
