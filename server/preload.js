@@ -44,7 +44,7 @@ function loadSymbolFromDir(srcDir, coder) {
                         return
                     }
                     coder.conn.console.info(`loading symbol path=[${srcDir}] filename=[${filename}]...`);
-                    engine.loadExtentLib(srcPath, filename + ".lua", coder.tracer);
+                    engine.loadExtentLib(srcPath, filename + ".lua", coder.conn.console);
                 }
             })
         })
