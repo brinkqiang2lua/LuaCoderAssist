@@ -1,7 +1,7 @@
 {
   "name": "luacoderassist2",
   "displayName": "luacoderassist2",
-  "description": "lua模块化定制版本",
+  "description": "lua模块化定制版本, private",
   "icon": "images/icon.png",
   "version": "2.3.9",
   "publisher": "brinkqiang",
